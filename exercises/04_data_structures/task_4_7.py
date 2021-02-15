@@ -16,3 +16,5 @@
 """
 
 mac = "AAAA:BBBB:CCCC"
+mac=mac.split(':')
+print(f'{(int((mac[0]),16)):08b}{(int((mac[1]),16)):08b}{(int((mac[2]),16)):08b}')
