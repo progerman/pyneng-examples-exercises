@@ -43,3 +43,10 @@ london_co = {
         "routing": True,
     },
 }
+
+inp_dev_name = input('Введите имя устройства: ')
+tpl_param_name=', '.join((london_co[inp_dev_name].keys()))
+print('Введите имя параметра (', tpl_param_name, '):', end=' ')
+inp_param_name = input()
+print(london_co[inp_dev_name].get(inp_param_name.lower(), 'Такого параметра нет'))
+
