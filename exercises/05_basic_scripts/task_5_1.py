@@ -50,7 +50,7 @@ london_co = {
     },
 }
 
-dev_name=input('Введите имя устройства:')
+dev_name = input('Введите имя устройства:')
 print(london_co[dev_name])
 
 
