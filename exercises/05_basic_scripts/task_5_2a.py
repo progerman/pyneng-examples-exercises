@@ -54,7 +54,6 @@ f'{int(ip_add[2]):08b}'
 f'{int(ip_add[3]):08b}')
 
 bin_ip_addr=(bin_ip_addr[:(net_mask)]+ '0'*(32-net_mask))
-#print(bin_ip_addr)
 
 bit_octet_addr_1=bin_ip_addr[0:8]
 bit_octet_addr_2=bin_ip_addr[8:16]
@@ -62,6 +61,7 @@ bit_octet_addr_3=bin_ip_addr[16:24]
 bit_octet_addr_4=bin_ip_addr[24:32]
 
 print('Network:')
+
 print(
 f'{int((bit_octet_addr_1),2):<10}'
 f'{int((bit_octet_addr_2),2):<10}'
@@ -74,9 +74,9 @@ f'{(bit_octet_addr_2):<10}'
 f'{(bit_octet_addr_3):<10}'
 f'{(bit_octet_addr_4):<10}')
 
-
 print('Mask:')
 net_mask=int(input_ip_add[1])
+
 print('/', net_mask, sep="")
 bit_mask='1'*net_mask+'0'*(32-net_mask)
 
