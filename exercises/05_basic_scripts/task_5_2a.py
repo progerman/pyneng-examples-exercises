@@ -41,3 +41,60 @@ bin_ip = "00001010000000010000000111000011"
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+input_ip_add=input('Введите IP-сеть в формате X.X.X.X/M :')
+input_ip_add=input_ip_add.split('/')
+ip_add=input_ip_add[0].split('.')
+net_mask=int(input_ip_add[1])
+
+bin_ip_addr=(
+f'{int(ip_add[0]):08b}'
+f'{int(ip_add[1]):08b}'
+f'{int(ip_add[2]):08b}'
+f'{int(ip_add[3]):08b}')
+
+bin_ip_addr=(bin_ip_addr[:(net_mask)]+ '0'*(32-net_mask))
+#print(bin_ip_addr)
+
+bit_octet_addr_1=bin_ip_addr[0:8]
+bit_octet_addr_2=bin_ip_addr[8:16]
+bit_octet_addr_3=bin_ip_addr[16:24]
+bit_octet_addr_4=bin_ip_addr[24:32]
+
+print('Network:')
+print(
+f'{int((bit_octet_addr_1),2):<10}'
+f'{int((bit_octet_addr_2),2):<10}'
+f'{int((bit_octet_addr_3),2):<10}'
+f'{int((bit_octet_addr_4),2):<10}')
+
+print(
+f'{(bit_octet_addr_1):<10}'
+f'{(bit_octet_addr_2):<10}'
+f'{(bit_octet_addr_3):<10}'
+f'{(bit_octet_addr_4):<10}')
+
+
+print('Mask:')
+net_mask=int(input_ip_add[1])
+print('/', net_mask, sep="")
+bit_mask='1'*net_mask+'0'*(32-net_mask)
+
+bit_octet_mask_1=bit_mask[0:8]
+bit_octet_mask_2=bit_mask[8:16]
+bit_octet_mask_3=bit_mask[16:24]
+bit_octet_mask_4=bit_mask[24:32]
+
+print(
+f'{int((bit_octet_mask_1),2):<10}'
+f'{int((bit_octet_mask_2),2):<10}'
+f'{int((bit_octet_mask_3),2):<10}'
+f'{int((bit_octet_mask_4),2):<10}')
+    
+print(
+f'{(bit_octet_mask_1):<10}'
+f'{(bit_octet_mask_2):<10}'
+f'{(bit_octet_mask_3):<10}'
+f'{(bit_octet_mask_4):<10}')
+
+
