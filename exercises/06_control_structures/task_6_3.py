@@ -88,6 +88,3 @@ for intf, vlans in trunk.items():
 
 
 
-
-
-
