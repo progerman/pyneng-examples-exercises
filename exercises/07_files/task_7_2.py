@@ -39,3 +39,28 @@ interface Ethernet0/3
 ...
 
 """
+
+from sys import argv
+
+name_file=argv
+if name_file[1::] != 0:
+    with open(''.join(name_file[1::]), 'r') as doc_1:
+        [print(list.strip('\n')) for list in doc_1 if list.startswith('!') == False]
+else:print('enter file name')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
