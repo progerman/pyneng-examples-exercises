@@ -20,3 +20,12 @@
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+
+with open('CAM_table.txt', 'r') as doc_1:
+    for list1 in doc_1:
+        list1 = list1.split('\n')
+        for list2 in list1:
+            indx1 = list2.strip()
+            if indx1[0:5].strip().isdigit() == True:
+                print(indx1.replace('DYNAMIC', ''))
