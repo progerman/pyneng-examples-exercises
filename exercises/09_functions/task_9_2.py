@@ -60,3 +60,75 @@ trunk_config_2 = {
     "FastEthernet0/15": [111, 130],
     "FastEthernet0/14": [117],
 }
+
+
+
+
+
+
+
+def generate_trunk_config(intf_vlan_mapping,trunk_template):
+    
+    result_config_list=[]
+    
+    
+    for interface, vlans in intf_vlan_mapping.items():
+        intf_print = 'interface', interface
+        result_config_list.append(' '.join(intf_print).strip())
+        vlan_id_result=[]
+        for vlan_id in vlans:
+            vlan_id_result.append(str(vlan_id))
+        for config_line in trunk_template:
+            if config_line.endswith('allowed vlan'):
+                a = config_line + ' ' + ','.join(vlan_id_result)
+                result_config_list.append(a.strip())
+            else:
+                result_config_list.append(config_line.strip())
+    return result_config_list
+           
+get_config=generate_trunk_config(trunk_config,trunk_mode_template)
+
+for line2 in get_config:
+    print(line2)
+    
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
