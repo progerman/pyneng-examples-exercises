@@ -48,7 +48,7 @@ def get_int_vlan_map(config_filename):
                         port_trunk_dict[interface_line]=vlan_id_list
     return port_access_dict , port_trunk_dict
 
-int_vlans_config=get_int_vlan_map('config_sw1.txt')
+int_vlans_config=get_int_vlan_map('config_sw2.txt')
 
 
 
