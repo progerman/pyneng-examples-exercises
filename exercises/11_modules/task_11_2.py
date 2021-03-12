@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+from task_11_1 import parse_cdp_neighbors
 """
 Задание 11.2
 
@@ -28,9 +30,33 @@ Cгенерировать топологию, которая соответст�
 Ограничение: Все задания надо выполнять используя только пройденные темы.
 
 """
+
+
 infiles = [
     "sh_cdp_n_sw1.txt",
     "sh_cdp_n_r1.txt",
     "sh_cdp_n_r2.txt",
     "sh_cdp_n_r3.txt",
 ]
+
+
+def create_network_map(filenames):
+    result_dict={}
+    for iter_file in filenames:
+        with open(iter_file) as f:
+            result_dict.update(parse_cdp_neighbors(f.read()))
+    return result_dict
+    
+    
+create_network_map(infiles)
+
+
+
+
+
+
+
+
+
+
+
