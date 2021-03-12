@@ -43,8 +43,68 @@ def parse_cdp_neighbors(command_output):
     и с файлами и с выводом с оборудования.
     Плюс учимся работать с таким выводом.
     """
+    result_dict={}
+    b=[]
+    command_output=command_output.split('\n')
+    for i in command_output:
+        if i.startswith('R') or i.startswith('S'):
+            b.append(i.split('\n'))
+    self_dev=b[0][0].split('>')
+    
+    
+    for t  in b:  
+        if t[0].count('>') == False:      
+            t=t[0].split()
+            local_intf=(self_dev[0],t[1]+t[2])
+            rem_intf=(t[0],t[-2]+t[-1])
+        
+        
+            result_dict[local_intf] = rem_intf
+    
+        
+        
+    
+    
+    
+    return result_dict
 
 
 if __name__ == "__main__":
     with open("sh_cdp_n_sw1.txt") as f:
         print(parse_cdp_neighbors(f.read()))
+
+
+'''
+#Вариант Наташи
+def parse_cdp_neighbors(command_output):
+    result = {}
+    for line in command_output.split("\n"):
+        line = line.strip()
+        columns = line.split()
+        if ">" in line:
+            hostname = line.split(">")[0]
+        # 3 индекс это столбец holdtime - там всегда число
+        elif len(columns) >= 5 and columns[3].isdigit():
+            r_host, l_int, l_int_num, *other, r_int, r_int_num = columns
+            result[(hostname, l_int + l_int_num)] = (r_host, r_int + r_int_num)
+    return result
+
+
+
+if __name__ == "__main__":
+    with open("sh_cdp_n_sw1.txt") as f:
+        print(parse_cdp_neighbors(f.read()))
+'''
+
+
+
+
+
+
+
+
+
+
+
+
+
