@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+
+from task_11_1 import parse_cdp_neighbors
+from draw_network_graph import draw_topology
+from pprint import pprint
 """
 Задание 11.2a
 
@@ -80,3 +84,48 @@ infiles = [
     "sh_cdp_n_r2.txt",
     "sh_cdp_n_r3.txt",
 ]
+
+
+
+def create_network_map(filenames):
+    result_dict = {}
+    for iter_file in filenames:
+        with open(iter_file) as f:
+            result_dict.update(parse_cdp_neighbors(f.read()))
+    return result_dict
+    
+    
+net_map = create_network_map(infiles)
+
+
+def unique_network_map(topology_dict):
+    new_dict = {}
+    result_unique_items_dict = {}
+    i = 0
+    for key,value in topology_dict.items():
+        if topology_dict.get(value) == key:
+            new_dict[key] = value
+        else:result_unique_items_dict[key] = value
+    for key , value in new_dict.items():
+        i += 1
+        if i <= int(len(new_dict)/2):
+            result_unique_items_dict[key] = value
+            
+    #print('sourse dictionary',"-"*50)
+    #pprint(topology_dict)
+    #print('mirror items',"-"*50)
+    #pprint(new_dict)
+    #print('unique items',"-"*50)
+    #pprint(result_unique_items_dict)  
+          
+    return result_unique_items_dict   
+    
+    
+unm = unique_network_map(net_map)
+draw_topology(unm)
+
+
+
+
+
+

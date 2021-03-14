@@ -39,6 +39,7 @@ styles = {
 
 
 def apply_styles(graph, styles):
+    #graph == g1 == gv.Graph(format="svg")
     graph.graph_attr.update(("graph" in styles and styles["graph"]) or {})
     graph.node_attr.update(("nodes" in styles and styles["nodes"]) or {})
     graph.edge_attr.update(("edges" in styles and styles["edges"]) or {})
