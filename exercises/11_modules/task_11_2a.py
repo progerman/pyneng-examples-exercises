@@ -111,12 +111,12 @@ def unique_network_map(topology_dict):
         if i <= int(len(new_dict)/2):
             result_unique_items_dict[key] = value
             
-    #print('sourse dictionary',"-"*50)
-    #pprint(topology_dict)
-    #print('mirror items',"-"*50)
-    #pprint(new_dict)
-    #print('unique items',"-"*50)
-    #pprint(result_unique_items_dict)  
+    print('sourse dictionary',"-"*50)
+    pprint(topology_dict)
+    print('mirror items',"-"*50)
+    pprint(new_dict)
+    print('unique items',"-"*50)
+    pprint(result_unique_items_dict)  
           
     return result_unique_items_dict   
     
