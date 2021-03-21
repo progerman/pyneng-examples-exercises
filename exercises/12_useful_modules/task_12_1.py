@@ -19,7 +19,7 @@ import subprocess
 
 
 
-list_of_ips = ["1.1.1", "8.8.8.8", "8.8.4.4", "8.8.7.1"]
+#list_of_ips = ["1.1.1", "8.8.8.8", "8.8.4.4", "8.8.7.1"]
 
 
 
@@ -38,7 +38,7 @@ def ping_ip_addresses(ip_list_range):
         else:
             true_ping.append(ip_ping)
     return false_ping,true_ping
-print(ping_ip_addresses(list_of_ips))
+#print(ping_ip_addresses(list_of_ips))
 
 
 

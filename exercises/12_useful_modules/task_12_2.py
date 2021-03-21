@@ -37,7 +37,7 @@ from pprint import pprint
 
 """
 
-test_ip_list=['8.8.4.4', '1.1.1.1-3', '172.21.41.128-172.21.41.132', '10.1.1.1-345','192.168.13.a-10']
+#test_ip_list=['8.8.4.4', '1.1.1.1-3', '172.21.41.128-172.21.41.132', '10.1.1.1-345','192.168.13.a-10']
 
 
 
@@ -46,8 +46,8 @@ test_ip_list=['8.8.4.4', '1.1.1.1-3', '172.21.41.128-172.21.41.132', '10.1.1.1-3
 
 
 def convert_ranges_to_ip_list(ip_adreses):
-    result_ip_renge=[]
-    intermediate_ip_range=[]
+    result_ip_renge = []
+    intermediate_ip_range = []
     for one_ip_adress in ip_adreses:
         try:
             if ipaddress.IPv4Address(one_ip_adress).version  == 4 :
@@ -85,12 +85,30 @@ def convert_ranges_to_ip_list(ip_adreses):
 
 
 
-pprint(convert_ranges_to_ip_list(test_ip_list))
+#pprint(convert_ranges_to_ip_list(test_ip_list))
 
 
 
+#Вариант Наташи
+'''
+import ipaddress
 
 
+def convert_ranges_to_ip_list(ip_addresses):
+    ip_list = []
+    for ip_address in ip_addresses:
+        if "-" in ip_address:
+            start_ip, stop_ip = ip_address.split("-")
+            if "." not in stop_ip:
+                stop_ip = ".".join(start_ip.split(".")[:-1] + [stop_ip])
+            start_ip = ipaddress.ip_address(start_ip)
+            stop_ip = ipaddress.ip_address(stop_ip)
+            for ip in range(int(start_ip), int(stop_ip) + 1):
+                ip_list.append(str(ipaddress.ip_address(ip)))
+        else:
+            ip_list.append(str(ip_address))
+    return ip_list
+'''
 
 
 
