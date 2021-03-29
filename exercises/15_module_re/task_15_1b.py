@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+import re
+from pprint import pprint
 """
 Задание 15.1b
 
@@ -28,3 +31,42 @@ IP-адреса, диапазоны адресов и так далее, так 
 а не ввод пользователя.
 
 """
+
+
+def get_ip_from_cfg(file_name):
+    with open(file_name) as data:
+        regex_intf=(r'(interface.)(\S+\d+)' )
+        regex=(r'(ip address) (\d+.\d+.\d+.\d+) (\d+.\d+.\d+.\d+)')
+        result_dict={}
+        result_tupl=()
+        for line in data:
+            match = re.search(regex, line)
+            match1 = re.search(regex_intf,line)
+            if match1:
+                a=match1.group(2)
+                result_list=[]
+            if match:
+                result_tupl=(match.group(2),match.group(3))
+                result_list.append(result_tupl)
+                result_dict[a]=result_list
+                
+                
+    return result_dict
+
+    
+dict1=get_ip_from_cfg('config_r2.txt')
+pprint(dict1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
