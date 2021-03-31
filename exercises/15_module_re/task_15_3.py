@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+import re
+from pprint import pprint
 """
 Задание 15.3
 
@@ -32,3 +35,28 @@ object network LOCAL_10.1.9.5
 
 Во всех правилах для ASA интерфейсы будут одинаковыми (inside,outside).
 """
+
+
+def convert_ios_nat_to_asa(file_name_ios,file_name_asa):
+    with open(file_name_ios) as data, open(file_name_asa, 'w') as dest_write :
+        regex = (r'(?P<port_type>tcp|udp)\s+'
+                r'(?P<IP>\d+.\d+.\d+.\d+)\s+'
+                r'(?P<src_port>\d+)\s+\S+\s+\S+\s+'
+                r'(?P<dst_port>\d+)')
+        for i in data:
+            match = re.search(regex,i)
+            IP = match.group('IP')
+            port_type = match.group('port_type')
+            src_port = match.group('src_port')
+            dst_port = match.group('dst_port')
+            line=(
+            f'object network LOCAL_{IP}\n'
+            f' host {IP}\n'
+            f' nat (inside,outside) static interface service {port_type} {src_port} {dst_port}\n')
+            dest_write.write(line)
+            
+            
+convert_ios_nat_to_asa('cisco_nat_config.txt','file_config_nat_for_asa.txt')
+
+
+
