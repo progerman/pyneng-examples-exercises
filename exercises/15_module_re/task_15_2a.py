@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+
+import re
+from pprint import pprint
 """
 Задание 15.2a
 
@@ -34,3 +37,21 @@ data = [
     ("R2", "15.2(2)T1", "Cisco 2911"),
     ("SW1", "12.2(55)SE9", "Cisco WS-C2960-8TC-L"),
 ]
+
+
+def convert_to_dict(headers, data):
+    result=[]
+    for i in data:
+        result.append(dict(zip(headers,i)))
+    return result
+
+forprint=convert_to_dict(headers, data)
+
+
+pprint(forprint)
+
+
+
+
+
+
