@@ -44,8 +44,80 @@
 """
 
 import glob
+import re
+import csv
 
 sh_version_files = glob.glob("sh_vers*")
-# print(sh_version_files)
-
+csv_filename = 'routers_inventory.csv'
 headers = ["hostname", "ios", "image", "uptime"]
+
+
+def write_inventory_to_csv(data_filenames,csv_filename):
+    with open(csv_filename, 'w') as file_csv:
+        writer = csv.writer(file_csv)
+        writer.writerow(headers)
+        for file_name in data_filenames:
+            f = open(file_name)
+            file_sh_ver = f.read()
+            dev_name = (re.search(r'\S+_(\S+).txt',file_name).groups(1))
+            writer.writerow(dev_name + parse_sh_version(file_sh_ver))
+        
+    
+def parse_sh_version(line_sh_ver):
+    regex_ver = (r'Cisco IOS Software.*Version\s+(\S+),')
+    regex_ios = (r'System image file is "(\S+)"')
+    regex_upt = (r' uptime is (.+)')
+    return (tuple(re.findall(regex_ver,line_sh_ver)) +
+            tuple(re.findall(regex_ios,line_sh_ver)) +
+            tuple(re.findall(regex_upt,line_sh_ver)))
+    
+    
+write_inventory_to_csv(sh_version_files,csv_filename)
+
+
+'''
+#Вариант Наташи
+
+import re
+import csv
+import glob
+
+
+def parse_sh_version(sh_ver_output):
+    regex = (
+        "Cisco IOS .*? Version (?P<ios>\S+), .*"
+        "uptime is (?P<uptime>[\w, ]+)\n.*"
+        'image file is "(?P<image>\S+)".*'
+    )
+    match = re.search(regex, sh_ver_output, re.DOTALL,)
+    if match:
+        return match.group("ios", "image", "uptime")
+
+
+def write_inventory_to_csv(data_filenames, csv_filename):
+    headers = ["hostname", "ios", "image", "uptime"]
+    with open(csv_filename, "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(headers)
+
+        for filename in data_filenames:
+            hostname = re.search("sh_version_(\S+).txt", filename).group(1)
+            with open(filename) as f:
+                parsed_data = parse_sh_version(f.read())
+                if parsed_data:
+                    writer.writerow([hostname] + list(parsed_data))
+
+
+if __name__ == "__main__":
+    sh_version_files = glob.glob("sh_vers*")
+    write_inventory_to_csv(sh_version_files, "routers_inventory.csv")
+'''
+
+
+
+
+
+
+
+
+
