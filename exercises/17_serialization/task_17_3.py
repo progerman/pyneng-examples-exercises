@@ -55,7 +55,7 @@ def parse_sh_cdp_neighbors(listing_cdp):
 
 r=parse_sh_cdp_neighbors(f.read())
 
-pprint(r)
+#pprint(r)
 
 
 '''
