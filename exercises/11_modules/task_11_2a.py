@@ -120,7 +120,7 @@ def unique_network_map(topology_dict):
           
     return result_unique_items_dict   
     
-    
+if __name__ == "__main__":
 unm = unique_network_map(net_map)
 draw_topology(unm)
 
