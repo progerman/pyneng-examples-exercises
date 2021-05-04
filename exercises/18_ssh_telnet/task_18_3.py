@@ -47,6 +47,46 @@ In [16]: send_commands(r1, config=commands)
 Out[16]: 'config term\nEnter configuration commands, one per line.  End with CNTL/Z.\nR1(config)#username user5 password pass5\nR1(config)#username user6 password pass6\nR1(config)#end\nR1#'
 
 """
+from pprint import pprint
+import yaml
+from task_18_1 import send_show_command
+from task_18_2 import send_config_commands
+import sys
 
 commands = ["logging 10.255.255.1", "logging buffered 20010", "no logging console"]
-command = "sh ip int br"
+command = "sh clock"
+command_1 = "sh ver"
+
+
+def send_commands(device , **kwargs):
+    
+   
+    if len(kwargs) > 1:
+        print(f'Лишний аргумент из: {list(kwargs.keys())}, нужно оставить один') 
+        sys.exit()
+    
+    show=kwargs.get('show')
+    config=kwargs.get('config')
+    if show:
+        print(send_show_command(device, show))
+    elif config:
+        print(send_config_commands(device, config))
+
+
+if __name__ == "__main__":
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+    for dev in devices:
+        #send_commands(dev ,  config=commands, show=command, show1=command_1) #bad argumets for test exception
+        send_commands(dev , show=command)
+        send_commands(dev , config=commands)
+
+
+
+
+
+
+
+
+
+
