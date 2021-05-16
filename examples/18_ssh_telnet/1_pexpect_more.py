@@ -19,8 +19,10 @@ def send_show_command(ip, username, password, enable, command, prompt="#"):
 
         while True:
             match = ssh.expect([prompt, "--More--", pexpect.TIMEOUT])
+            print('match = ',match)
             page = ssh.before.replace("\r\n", "\n")
             page = re.sub(" +\x08+ +\x08+", "\n", page)
+            print('page = ',page)
             output += page
             if match == 0:
                 break
@@ -37,5 +39,5 @@ if __name__ == "__main__":
     devices = ["192.168.100.1", "192.168.100.2", "192.168.100.3"]
     for ip in devices:
         result = send_show_command(ip, "cisco", "cisco", "cisco", "sh run")
-        with open(f"{ip}_result.txt", "w") as f:
+        with open(f"{ip}_result_1.txt", "w") as f:
             f.write(result)

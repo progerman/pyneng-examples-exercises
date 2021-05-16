@@ -11,6 +11,7 @@ def send_ios_show_pexpect(ip, command, username=None, password=None, enable=None
     if not enable:
         enable = getpass.getpass(prompt="Enter enable password: ")
     print("Connection to device {}".format(ip))
+    print(command)
     with pexpect.spawn("ssh {}@{}".format(username, ip), encoding="ascii") as ssh:
         ssh.logfile_read = sys.stdout
 
@@ -34,7 +35,11 @@ def send_ios_show_pexpect(ip, command, username=None, password=None, enable=None
 
 
 if __name__ == "__main__":
-    command = sys.argv[1]
+    command = sys.argv[1:]
     devices_ip = ["192.168.100.1", "192.168.100.2", "192.168.100.3"]
     for ip in devices_ip:
-        print(send_ios_show_pexpect(ip, command, *["cisco"] * 3))
+        print(send_ios_show_pexpect(ip, ' '.join(command), *["cisco"] * 3))
+
+
+
+
