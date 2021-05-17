@@ -67,8 +67,12 @@ if __name__ == '__main__':
     print(ping_ip_addresses(ip_list,limit=6))
     
     
+<<<<<<< HEAD
 ############
 #############
+=======
+
+>>>>>>> fa2f3c48d2afb7f739ddc9f25f778cede4c8b5cd
 
 
 
