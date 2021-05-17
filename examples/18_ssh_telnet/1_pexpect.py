@@ -40,3 +40,4 @@ if __name__ == "__main__":
     for ip in devices:
         result = send_show_command(ip, "cisco", "cisco", "cisco", commands)
         pprint(result, width=120)
+

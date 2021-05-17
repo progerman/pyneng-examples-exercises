@@ -1,13 +1,13 @@
 sh run
 Building configuration...
 
-Current configuration : 2770 bytes
+Current configuration : 1968 bytes
 !
-! Last configuration change at 07:50:30 UTC Sat Mar 16 2019
+upgrade fpd auto
 version 15.2
-no service timestamps debug uptime
-no service timestamps log uptime
-service password-encryption
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
 !
 hostname R1
 !
@@ -15,20 +15,16 @@ boot-start-marker
 boot-end-marker
 !
 !
-logging buffered 20010
-enable password 7 070C285F4D06
+enable password cisco
 !
 no aaa new-model
-!
-mmi polling-interval 60
-no mmi auto-configure
-no mmi pvc
- --More--         mmi snmp-timeout 180
-ip auth-proxy max-login-attempts 5
-ip admission max-login-attempts 5
+no ip icmp rate-limit unreachable
 !
 !
 !
+!
+  
+        
 !
 !
 no ip domain lookup
@@ -43,24 +39,18 @@ multilink bundle-name authenticated
 !
 !
 !
-crypto pki token default removal timeout 0
 !
 !
- --More--         file prompt quiet
-username cisco password 7 110A1016141D
-username user2 secret 5 $1$ILW9$CQfiZISbWMkuVTktFkXwN/
-username user3 secret 5 $1$fl7v$ZiZtzfT2lVJO37sS4hZlL.
-username user1 secret 5 $1$rDzF$pbF0xOr4hYFQa.7AFG3A3/
+!
+username cisco password 0 cisco
 !
 redundancy
 !
 !
+ip tcp synwait-time 5
+  
+        
 ip ssh version 2
-!
-policy-map OUT_QOS
- class class-default
-  shape average 100000000 1000000
-!
 ! 
 !
 !
@@ -69,38 +59,22 @@ policy-map OUT_QOS
 !
 !
 !
- --More--         !
 !
 !
-!
-interface Loopback0
- ip address 10.1.1.1 255.255.255.255
-!
-interface Ethernet0/0
+interface FastEthernet0/0
  ip address 192.168.100.1 255.255.255.0
+ duplex auto
+ speed auto
 !
-interface Ethernet0/1
- ip address 192.168.200.1 255.255.255.0
-!
-interface Ethernet0/2
- ip address 190.16.200.1 255.255.255.0
-!
-interface Ethernet0/3
- ip address 192.168.130.1 255.255.255.0
-!
-interface Ethernet0/3.100
- encapsulation dot1Q 100
- ip address 10.100.0.1 255.255.255.0
-!
- --More--         interface Ethernet0/3.200
- encapsulation dot1Q 200
- ip address 10.200.0.1 255.255.255.0
-!
-interface Ethernet0/3.300
- encapsulation dot1Q 300
- ip address 10.30.0.1 255.255.255.0
+interface FastEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
 !
 router ospf 1
+  
+        
  network 0.0.0.0 255.255.255.255 area 0
 !
 router bgp 100
@@ -114,23 +88,27 @@ router bgp 100
  neighbor 192.168.100.2 remote-as 200
 !
 ip forward-protocol nd
-!
- --More--         !
 no ip http server
 no ip http secure-server
 !
-ip access-list extended TESST2
- permit ip any any
 !
+!
+no cdp log mismatch duplex
 !
 !
 !
 control-plane
+  
+        
 !
 !
 !
+mgcp profile default
 !
 !
+!
+gatekeeper
+ shutdown
 !
 alias configure sh do sh
 alias exec ospf sh run | s ^router ospf
@@ -138,25 +116,31 @@ alias exec bri show ip int bri | exc unass
 alias exec id show int desc
 alias exec top sh proc cpu sorted | excl 0.00%__0.00%__0.00%
 alias exec c conf t
- --More--         alias exec diff sh archive config differences nvram:startup-config system:running-config
+alias exec diff sh archive config differences nvram:startup-config system:running-config
 alias exec desc sh int desc | ex down
 alias exec bgp sh run | s ^router bgp
 !
 line con 0
  exec-timeout 0 0
+  
+        
  privilege level 15
  logging synchronous
+ stopbits 1
 line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+ stopbits 1
 line vty 0 4
  logging synchronous
  login local
  transport input telnet ssh
 !
-ntp server 10.255.100.1
 event manager applet COMM_ACC
  event cli pattern ".*" sync no skip no occurs 1
  action 1 syslog msg "User $_cli_username entered $_cli_msg on device $_cli_host "
 !
 end
 
-R1#
+R1
