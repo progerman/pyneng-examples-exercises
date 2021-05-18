@@ -47,3 +47,54 @@ commands = {
     "192.168.100.1": "sh ip int br",
     "192.168.100.2": "sh int desc",
 }
+
+
+import yaml
+from netmiko import ConnectHandler
+from pprint import pprint
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from itertools import repeat
+
+
+def send_show(devices, commands_dict):
+    for command in list(commands_dict):
+        if command[0] == devices['host']:
+            with ConnectHandler(**devices) as ssh:
+                ssh.enable()
+                list_1=[]
+                result = ssh.send_command(command[1],strip_command=False, strip_prompt=False)
+                for i in result.split('\n'):
+                    list_1.append(i)
+    return list_1
+
+
+def send_show_command_to_devices(devices, commands_dict, filename, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        result = executor.map(send_show, devices, repeat(commands_dict.items()))
+        with open(filename, 'a') as dest:
+            for i in result:
+                dest.write(i[-1]+i[0]+'\n')
+                for j in i[1:-1]:
+                    dest.write(j+'\n')
+    
+    
+if __name__ == '__main__':
+    with open('devices.yaml') as f:
+        devices = yaml.safe_load(f)
+    send_show_command_to_devices(devices, commands, 'result_task_19_3.txt')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
