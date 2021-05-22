@@ -54,7 +54,108 @@ O        10.30.0.0/24 [110/20] via 192.168.100.1, 07:12:03, Ethernet0/0
 # Этот словарь нужен только для проверки работа кода, в нем можно менять IP-адреса
 # тест берет адреса из файла devices.yaml
 commands = {
-    "192.168.100.3": ["sh ip int br", "sh ip route | ex -"],
-    "192.168.100.1": ["sh ip int br", "sh int desc"],
-    "192.168.100.2": ["sh int desc"],
+    "192.168.100.3": ["sh ip int br", "sh ip route | ex -", 'sh arp'],
+    "192.168.100.1": ["sh ip int br", "sh int desc",'sh clock'],
+    "192.168.100.2": ["sh int desc", 'sh clock'],
 }
+
+
+
+import yaml
+from netmiko import ConnectHandler
+from pprint import pprint
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from itertools import repeat
+from datetime import datetime
+
+def send_show(device, command):
+    result_list = []
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_command(command,strip_prompt = False , strip_command=False)
+        for result_str in  result.split('\n'):
+            result_list.append(result_str)
+    return result_list
+
+
+def send_show_command_to_devices(devices, commands_dict, filename, limit):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+       
+        future_list = []
+        for device in devices:
+        
+        #for command in commands_dict.items():
+            #if device['host'] == command[0]:
+                #for command_for in  command[1]:
+        
+            #ip = device['host']
+            for command in commands_dict[device['host']]:
+                future = executor.submit(send_show, device,command)
+                future_list.append(future)
+            
+    with open(filename, 'w') as dest:
+        for i in as_completed(future_list):
+            dest.write(i.result()[-1].strip()+i.result()[0].strip()+'\n')
+            for m in i.result()[1:-1]:
+                dest.write(m+'\n')
+                
+    return print(datetime.now() - start_time)
+                
+if __name__ == '__main__':
+    
+    with open('devices.yaml') as f:
+        devices = yaml.safe_load(f)
+        for i in range(1 , 13):
+            start_time = datetime.now()
+            print(i)
+            send_show_command_to_devices(devices, commands, 'result_task_19_3a.txt', limit=i)
+
+
+
+
+
+'''
+#Вариант Наташи
+
+def send_show_command(device, commands):
+    output = ""
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        for command in commands:
+            result = ssh.send_command(command)
+            prompt = ssh.find_prompt()
+            output += f"{prompt}{command}\n{result}\n"
+    return output
+
+
+def send_command_to_devices(devices, commands_dict, filename, limit=3):
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        futures = []
+        for device in devices:
+            ip = device["host"]
+            command = commands_dict[ip]
+            #вызов значения одного словаря по значению другого (исполюзуя это значение как ключ) 
+            futures.append(executor.submit(send_show_command, device, command))
+        with open(filename, "w") as f:
+            for future in as_completed(futures):
+                f.write(future.result())
+
+
+if __name__ == "__main__":
+    #command = "sh ip int br"
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+    send_command_to_devices(devices, commands, "result_3a.txt")
+'''
+
+
+
+
+
+
+
+
+
+
+
+
