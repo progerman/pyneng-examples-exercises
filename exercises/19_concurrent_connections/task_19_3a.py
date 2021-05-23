@@ -78,7 +78,7 @@ def send_show(device, command):
     return result_list
 
 
-def send_show_command_to_devices(devices, commands_dict, filename, limit):
+def send_command_to_devices(devices, commands_dict, filename, limit):
     with ThreadPoolExecutor(max_workers=limit) as executor:
        
         future_list = []
@@ -108,7 +108,7 @@ if __name__ == '__main__':
         for i in range(1 , 13):
             start_time = datetime.now()
             print(i)
-            send_show_command_to_devices(devices, commands, 'result_task_19_3a.txt', limit=i)
+            send_command_to_devices(devices, commands, 'result_task_19_3a.txt', limit=i)
 
 
 
