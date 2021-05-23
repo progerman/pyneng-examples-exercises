@@ -105,3 +105,127 @@ R3#
 
 Для выполнения задания можно создавать любые дополнительные функции.
 """
+import yaml
+from netmiko import ConnectHandler
+from pprint import pprint
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from itertools import repeat
+from datetime import datetime
+
+
+commands_show = {
+    "192.168.100.3": ["sh ip int br", "sh ip route | ex -", 'sh arp'],
+    "192.168.100.1": ["sh ip int br", "sh int desc",'sh clock'],
+    "192.168.100.2": ["sh int desc", 'sh clock'],
+}
+
+commands_conf = {
+    "192.168.100.3": ["logging 10.55.5.3" , " router ospf 55 \n network 0.0.0.0 255.255.255.255  area 0 "],
+    "192.168.100.1": ["logging 10.55.5.1"],
+    "192.168.100.2": ["logging 10.55.5.2"],
+}
+
+def send_line(device, command, conf_mode=False):
+    result_list = []
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        if conf_mode == True:
+            result = ssh.send_config_set(command,strip_prompt = False , strip_command=False)
+        else:
+            result = ssh.send_command(command,strip_prompt = False , strip_command=False)
+        for result_str in  result.split('\n'):
+            result_list.append(result_str)
+    return result_list
+
+
+def send_commands_to_devices(devices, *, filename , limit=3, **kwarg ):
+    if 0<len(kwarg)<2 :
+        with ThreadPoolExecutor(max_workers=limit) as executor:
+            future_list = []
+            for device in devices:
+                if kwarg.get('conf'):
+                    conf=kwarg.get('conf')
+                    for command in conf[device['host']]:
+                        print(command)
+                        future = executor.submit(send_line, device,command, conf_mode=True)
+                        future_list.append(future)
+                elif kwarg.get('show'):
+                    show=kwarg.get('show')
+                    for command in show[device['host']]:
+                        print(command)
+                        future = executor.submit(send_line, device,command)
+                        future_list.append(future)
+            with open(filename, 'a') as dest:
+                for i in as_completed(future_list):
+                    dest.write(i.result()[-1].strip()+i.result()[0].strip()+'\n')#show=commands_show,conf=commands_conf
+                    for m in i.result()[1:-1]:
+                        dest.write(m+'\n')
+    else:
+        raise ValueError('WrongNumberArguments')
+  
+    
+if __name__ == '__main__':
+    
+    with open('devices.yaml') as f:
+        devices = yaml.safe_load(f)
+        
+                
+        send_commands_to_devices(devices, filename='result_task_4.txt', limit=6,  conf=commands_conf)
+        send_commands_to_devices(devices, filename='result_task_4.txt', limit=6,  show=commands_show)
+        #show=commands_show,conf=commands_conf
+
+
+'''
+
+from itertools import repeat
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from netmiko import ConnectHandler, NetMikoTimeoutException
+import yaml
+
+
+def send_show_command(device, command):
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_command(command)
+        prompt = ssh.find_prompt()
+    return f"{prompt}{command}\n{result}\n"
+
+
+def send_cfg_commands(device, commands):
+    with ConnectHandler(**device) as ssh:
+        ssh.enable()
+        result = ssh.send_config_set(commands)
+    return f"{result}\n"
+
+
+def send_commands_to_devices(devices, filename, show=None, config=None, limit=3):
+    command = show if show else config
+    function = send_show_command if show else send_cfg_commands
+
+    with ThreadPoolExecutor(max_workers=limit) as executor:
+        futures = [executor.submit(function, device, command) for device in devices]
+        with open(filename, "w") as f:
+            for future in as_completed(futures):
+                f.write(future.result())
+
+
+if __name__ == "__main__":
+    command = "sh ip int br"
+    with open("devices.yaml") as f:
+        devices = yaml.load(f)
+    send_commands_to_devices(devices, show=command, filename="result.txt")
+    send_commands_to_devices(devices, config="logging 10.5.5.5", filename="result.txt")
+
+
+'''
+
+
+
+
+
+
+
+
+
+
