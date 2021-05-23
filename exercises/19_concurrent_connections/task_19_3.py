@@ -68,7 +68,7 @@ def send_show(devices, commands_dict):
     return list_1
 
 
-def send_show_command_to_devices(devices, commands_dict, filename, limit=3):
+def send_command_to_devices(devices, commands_dict, filename, limit=3):
     with ThreadPoolExecutor(max_workers=limit) as executor:
         result = executor.map(send_show, devices, repeat(commands_dict.items()))
         with open(filename, 'a') as dest:
@@ -81,7 +81,7 @@ def send_show_command_to_devices(devices, commands_dict, filename, limit=3):
 if __name__ == '__main__':
     with open('devices.yaml') as f:
         devices = yaml.safe_load(f)
-    send_show_command_to_devices(devices, commands, 'result_task_19_3.txt')
+    send_command_to_devices(devices, commands, 'result_task_19_3.txt')
 
 
 
