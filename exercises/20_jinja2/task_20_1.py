@@ -15,6 +15,16 @@
 
 """
 import yaml
+from pprint import pprint
+from jinja2 import Environment, FileSystemLoader
+
+
+def generate_config(template_file, data):
+    env = Environment(loader=FileSystemLoader('.'))
+    templ = env.get_template(template_file)
+    return templ.render(data)
+    
+
 
 
 # так должен выглядеть вызов функции
