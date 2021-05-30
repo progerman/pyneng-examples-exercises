@@ -17,3 +17,14 @@
 В качестве данных, используйте информацию из файла data_files/router_info.yml
 
 """
+
+from task_20_1 import generate_config
+import yaml
+
+
+if __name__ == "__main__":
+    data_file = "data_files/router_info.yml"
+    template_file = "templates/cisco_router_base.txt"
+    with open(data_file) as f:
+        data = yaml.safe_load(f)
+    print(generate_config(template_file, data))
