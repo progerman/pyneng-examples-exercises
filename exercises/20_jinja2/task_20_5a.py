@@ -37,6 +37,16 @@
 интерфейсов, но при этом не проверяет настроенные номера тунелей и другие команды.
 Они должны быть, но тест упрощен, чтобы было больше свободы выполнения.
 """
+import yaml
+from netmiko import (
+    ConnectHandler,
+    NetmikoTimeoutException,
+    NetmikoAuthenticationException,
+)
+from pprint import pprint
+import re
+from task_20_1 import generate_config
+
 
 data = {
     "tun_num": None,
@@ -45,3 +55,167 @@ data = {
     "tun_ip_1": "10.0.1.1 255.255.255.252",
     "tun_ip_2": "10.0.1.2 255.255.255.252",
 }
+
+
+def check_tunnel_number(device_params):
+    tunnel_numbers_list=[]
+    for i in send_show_command(device_params, 'sh ip int bri').split( '\n'):
+        for tunnel_line in i.split():
+            match = re.search(r'Tunnel(\d+)', tunnel_line)
+            if match:
+                tunnel_numbers_list.append(int(match.group(1)))
+    return tunnel_numbers_list
+
+
+def selection_tunnel_number(src_device_params, dst_device_params):
+    x = -1
+    while True:
+        x = x+1
+        if x in check_tunnel_number(src_device_params): pass
+        elif x in check_tunnel_number(dst_device_params): pass
+        else: break
+    return x
+
+
+def send_show_command(dev, command):
+    try:
+        with ConnectHandler(**dev) as ssh:
+            ssh.enable()
+            output = ssh.send_command(command)
+            return output
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+        
+        
+def send_config_command(dev, command):
+    try:
+        with ConnectHandler(**dev) as ssh:
+            ssh.enable()
+            output = ssh.send_config_set(command)
+            return output
+    except (NetmikoTimeoutException, NetmikoAuthenticationException) as error:
+        print(error)
+        
+        
+def configure_vpn(src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict):
+    tun_num = selection_tunnel_number(src_device_params, dst_device_params)
+    vpn_data_dict["tun_num"] = tun_num
+    src_template = generate_config(src_template, vpn_data_dict)
+    print(send_config_command(src_device_params, src_template))
+    print('-'*100)
+    dst_template = generate_config(dst_template, vpn_data_dict)
+    print(send_config_command(dst_device_params, dst_template))
+    return (send_config_command(src_device_params, src_template) , 
+    send_config_command(dst_device_params, dst_template)
+    )
+    
+
+if __name__ == '__main__':
+    
+    with open('devices.yaml') as f:
+        devices = yaml.safe_load(f)
+        src_device_params = devices[0]
+        dst_device_params = devices[1]
+        src_template = "templates/gre_ipsec_vpn_1.txt"
+        dst_template = "templates/gre_ipsec_vpn_2.txt"
+        vpn_data_dict = data
+        configure_vpn(src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict)
+        
+       
+
+'''
+
+########## Вариант Наташи ##################
+import re
+
+import yaml
+from netmiko import ConnectHandler
+from task_20_5 import create_vpn_config
+
+
+def get_free_tunnel_number(src, dst):
+    nums = [int(num) for num in re.findall("Tunnel(\d+)", src + dst)]
+    if not nums:
+        return 0
+    return max(nums) + 1
+
+
+def configure_vpn(
+    src_device_params, dst_device_params, src_template, dst_template, vpn_data_dict
+):
+    with ConnectHandler(**src_device_params) as src, ConnectHandler(
+        **dst_device_params
+    ) as dst:
+        src.enable()
+        dst.enable()
+        tunnels_src = src.send_command("sh run | include ^interface Tunnel")
+        tunnels_dst = dst.send_command("sh run | include ^interface Tunnel")
+        tun_num = get_free_tunnel_number(tunnels_src, tunnels_dst)
+        vpn_data_dict["tun_num"] = tun_num
+        vpn1, vpn2 = create_vpn_config(src_template, dst_template, vpn_data_dict)
+        output = src.send_config_set(vpn1.split("\n"))
+        output += dst.send_config_set(vpn2.split("\n"))
+    return output
+
+
+if __name__ == "__main__":
+    template1 = "templates/gre_ipsec_vpn_1.txt"
+    template2 = "templates/gre_ipsec_vpn_2.txt"
+
+    data = {
+        "tun_num": None,
+        "wan_ip_1": "192.168.100.1",
+        "wan_ip_2": "192.168.100.2",
+        "tun_ip_1": "10.0.1.1 255.255.255.252",
+        "tun_ip_2": "10.0.1.2 255.255.255.252",
+    }
+
+    with open("devices.yaml") as f:
+        devices = yaml.safe_load(f)
+        r1, r2 = devices[:2]
+    configure_vpn(r1, r2, template1, template2, data)
+
+'''
+
+'''
+templates/gre_ipsec_vpn_1.txt
+
+crypto isakmp policy 10
+ encr aes
+ authentication pre-share
+ group 5
+ hash sha
+crypto isakmp key cisco address {{wan_ip_1}}
+crypto ipsec transform-set AESSHA esp-aes esp-sha-hmac
+ mode transport
+crypto ipsec profile GRE
+ set transform-set AESSHA
+interface Tunnel {{tun_num}}
+ ip address {{tun_ip_1}}
+ tunnel source  {{wan_ip_1}}
+ tunnel destination  {{wan_ip_2}}
+ tunnel protection ipsec profile GRE
+ 
+ --------------------
+ templates/gre_ipsec_vpn_2.txt
+ 
+ crypto isakmp policy 10
+ encr aes
+ authentication pre-share
+ group 5
+ hash sha
+crypto isakmp key cisco address {{wan_ip_2}}
+crypto ipsec transform-set AESSHA esp-aes esp-sha-hmac
+ mode transport
+crypto ipsec profile GRE
+ set transform-set AESSHA
+interface Tunnel {{tun_num}}
+ ip address {{tun_ip_2}}
+ tunnel source  {{wan_ip_2}}
+ tunnel destination  {{wan_ip_1}}
+ tunnel protection ipsec profile GRE
+
+'''
+
+
+
