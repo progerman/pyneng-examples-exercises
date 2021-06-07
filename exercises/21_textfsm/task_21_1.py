@@ -16,6 +16,19 @@
 
 """
 from netmiko import ConnectHandler
+import textfsm
+from tabulate import tabulate
+
+def parse_command_output(template, command_output):
+    list_result=[]
+    with open(template) as template:
+        fsm = textfsm.TextFSM(template)
+        parse_result = fsm.ParseText(command_output)
+        list_result.append(fsm.header)
+        list_result.extend(parse_result)
+    
+    return list_result
+    
 
 
 # вызов функции должен выглядеть так
@@ -32,3 +45,5 @@ if __name__ == "__main__":
         output = r1.send_command("sh ip int br")
     result = parse_command_output("templates/sh_ip_int_br.template", output)
     print(result)
+
+
