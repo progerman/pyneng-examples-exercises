@@ -63,3 +63,78 @@ topology_example = {
     ("SW1", "Eth0/2"): ("R2", "Eth0/0"),
     ("SW1", "Eth0/3"): ("R3", "Eth0/0"),
 }
+
+
+from pprint import pprint
+
+class Topology:
+    def __init__(self, topology_dict):
+        self.topology_dict = topology_dict
+        self.topology = self._normalize(topology_dict)
+        
+    def _normalize(self, topology_dict):
+        new_dict = {}
+        result_unique_items_dict = {}
+        i = 0
+        for key,value in topology_dict.items():
+            if topology_dict.get(value) == key:
+                new_dict[key] = value
+            else:result_unique_items_dict[key] = value
+        for key , value in new_dict.items():
+            i += 1
+            if i <= int(len(new_dict)/2):
+                result_unique_items_dict[key] = value
+              
+        return result_unique_items_dict 
+        
+        
+    def delete_link(self, link_1 , link_2):
+        #for num,key in enumerate(self.topology):
+        if  self.topology.get(link_1) == link_2:
+            print (link_1,':',link_2)
+            print(f'Удаление линка: {link_1}: {link_2}')
+            del self.topology[link_1]
+        elif self.topology.get(link_2) == link_1:
+            print (link_2,':',link_1)
+            print(f'Удаление "обратного" линка: {link_2}: {link_1}')
+            del self.topology[link_2]
+        else:
+            print(len(self.topology) )
+            print('Такого соединения нет')
+        print('-'*50)
+        
+       
+    
+        
+
+if __name__ == '__main__':
+    top = Topology(topology_example)
+    print('-'*20,'top.topology after','-'*20)
+    pprint(top.topology)
+    print('-'*50)
+    top.delete_link(('R3', 'Eth0/0'), ('SW1', 'Eth0/3'))
+    print('-'*20,'top.topology beafor','-'*20)
+    pprint(top.topology)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
+
+
+
+
+
+
