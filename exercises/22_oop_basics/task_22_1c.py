@@ -86,13 +86,13 @@ class Topology:
         print('-'*50)
         
     def delete_node(self, node):
-        test_self=len(self.topology)
+        len_dict_after=len(self.topology)
         for key, value in list(self.topology.items()):
             if key[0]  == node:
                 del self.topology[key]
             elif value[0] == node:
                 del self.topology[key]
-        if  test_self == len(self.topology):
+        if  len_dict_after == len(self.topology):
             print('Такого устройства нет')
                 
 
