@@ -50,3 +50,63 @@ up      \r\nEthernet0/1                192.168.200.1   YES NVRAM  up...'
 
 
 """
+
+import telnetlib
+from pprint import pprint
+from tabulate import tabulate
+import textfsm
+from textfsm import clitable
+
+class CiscoTelnet:
+    def __init__(self, **params):
+        self.params = params
+        ip, username, password, secret = params.values()
+        self.telnet = telnetlib.Telnet(ip) 
+        self.telnet.read_until(b'Username')
+        self.telnet.write(self._write_line(username))
+        self.telnet.read_until(b'Password')
+        self.telnet.write(self._write_line(password))
+        self.telnet.read_until(b'>')
+        self.telnet.write(b'enable\n')
+        self.telnet.read_until(b'Password')
+        self.telnet.write(self._write_line(secret))
+        self.telnet.read_until(b'#')
+        
+        
+    def _write_line(self,line):
+        return f"{line}\n".encode("utf-8")
+        
+        
+    def send_show_command(self, command, parse = True, templates = 'templates', index = 'index'):
+        if parse:
+            command_to_bite_encode = self._write_line(command)
+            self.telnet.write(command_to_bite_encode)
+            command_output = self.telnet.read_until(b'#').decode('utf-8')
+            attributes = {'Command' : f'{command}', 'Vendor' : 'cisco_ios'}
+            cli_table = clitable.CliTable(index, templates)
+            cli_table.ParseCmd(command_output,  attributes)
+            result_dict = {}
+            parse_result_list = []
+            for j in cli_table:
+                result_dict = dict(zip(cli_table.header, j))
+                parse_result_list.append(result_dict)
+            return parse_result_list
+        else:
+            command_to_bite_encode = self._write_line(command)
+            self.telnet.write(command_to_bite_encode)
+            return self.telnet.read_until(b'#').decode('utf-8')
+
+
+if __name__ == '__main__':
+    r1_params = {
+            'ip': '192.168.100.1',
+            'username': 'cisco',
+            'password': 'cisco',
+            'secret': 'cisco'
+                }
+    connect_telnet = CiscoTelnet(**r1_params)
+    pprint(connect_telnet.send_show_command("sh ip int br" ))
+    
+    
+    
+    
